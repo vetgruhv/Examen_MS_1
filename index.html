@@ -316,7 +316,6 @@
             line-height: 1;
         }
 
-        /* CONTENEDOR Y ORBITA DE MASCOTAS */
         .clicker-btn-wrapper {
             position: relative;
             width: 250px;
@@ -359,7 +358,6 @@
             box-shadow: 0 2px 0 #4c0519, 0 0 20px rgba(244, 63, 94, 0.9);
         }
 
-        /* MASCOTAS EN PANTALLA ORBITANDO */
         .pets-orbit-layer {
             position: absolute;
             width: 100%;
@@ -400,7 +398,6 @@
             100% { transform: scale(1); }
         }
 
-        /* ELEMENTOS FLOTANTES Y TOASTS */
         .golden-item {
             position: absolute;
             font-size: 2.3rem;
@@ -471,7 +468,6 @@
         .upgrades-grid::-webkit-scrollbar { width: 5px; }
         .upgrades-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 
-        /* MEJORA CLICKEABLE EN TODO EL BOTÓN */
         .upgrade-btn {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -487,9 +483,7 @@
             user-select: none;
         }
 
-        .upgrade-btn * {
-            pointer-events: none; /* Asegura que al hacer clic sobre cualquier subtexto o span se active el botón completo */
-        }
+        .upgrade-btn * { pointer-events: none; }
 
         .upgrade-btn:hover:not(:disabled) {
             border-color: #818cf8;
@@ -552,7 +546,7 @@
     <!-- LOGIN -->
     <div class="card" id="login-section">
         <h1>Examen de Criptografía</h1>
-        <p class="subtitle">Ingresa tus datos para comenzar la evaluación</p>
+        <p class="subtitle">Ingresa tus datos para comenzar la evaluación (5 Preguntas Aleatorias)</p>
 
         <div class="form-group">
             <label for="student-name">Nombre y Apellido</label>
@@ -573,49 +567,13 @@
         <button class="btn-main" onclick="startExam()">Comenzar Examen</button>
     </div>
 
-    <!-- PREGUNTAS -->
+    <!-- PREGUNTAS (SE GENERAN DINÁMICAMENTE) -->
     <div class="card hidden" id="exam-section">
         <h2>Preguntas de Evaluación</h2>
-        <p class="subtitle">Responde las preguntas marcando la opción correcta</p>
+        <p class="subtitle">Responde las 5 preguntas seleccionando la opción correcta</p>
 
         <form id="quiz-form">
-            <div class="question-box">
-                <div class="question-title">
-                    1. En el año 58 a.C. se empezó a usar el cifrado César por el emperador Julio César para enviar mensajes secretos a sus generales en batalla. ¿En qué año se empezó a usar y cuál era su objetivo?
-                </div>
-                <label class="option-label"><input type="radio" name="q1" value="correct"> a) En el 58 a.C. para enviar mensajes secretos a sus generales.</label>
-                <label class="option-label"><input type="radio" name="q1" value="wrong"> b) En el año 1990 para proteger páginas web.</label>
-                <label class="option-label"><input type="radio" name="q1" value="wrong"> c) En el 100 d.C. para redactar documentos públicos.</label>
-            </div>
-
-            <div class="question-box">
-                <div class="question-title">
-                    2. La importancia en la tecnología de este método radica en que sentó las bases de la criptografía moderna de sustitución para proteger información digital. ¿Cuál es su importancia tecnológica?
-                </div>
-                <label class="option-label"><input type="radio" name="q2" value="wrong"> a) Permitió crear las primeras pantallas táctiles.</label>
-                <label class="option-label"><input type="radio" name="q2" value="correct"> b) Sentó las bases de la criptografía moderna de sustitución.</label>
-                <label class="option-label"><input type="radio" name="q2" value="wrong"> c) Aceleró la velocidad de procesamiento de las computadoras.</label>
-            </div>
-
-            <div class="question-box">
-                <div class="question-title">
-                    3. Descifra la siguiente palabra oculta utilizando la tabla de correspondencia César (Desplazamiento +3). Selecciona la opción correcta:
-                </div>
-
-                <div class="cipher-badge" id="cipher-text-display">...</div>
-
-                <div class="decoder-box">
-                    <div style="font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">
-                        Tabla de equivalencias (+3 posiciones):
-                    </div>
-                    <div class="alphabet-strip-container">
-                        <div class="alphabet-row" id="alphabetRow"></div>
-                    </div>
-                </div>
-
-                <div id="q3-options-container" style="margin-top: 15px;"></div>
-            </div>
-
+            <div id="quiz-questions-container"></div>
             <button type="button" class="btn-main" onclick="submitExam()">Enviar Respuestas</button>
         </form>
     </div>
@@ -691,7 +649,6 @@
 
             <div class="clicker-score" id="scoreDisplay">0</div>
 
-            <!-- CONTENEDOR CON ORBITA DE MASCOTAS -->
             <div class="clicker-btn-wrapper" id="btnWrapper">
                 <canvas id="particleCanvas" width="250" height="250"></canvas>
                 <div class="pets-orbit-layer" id="petsOrbitContainer"></div>
@@ -710,7 +667,6 @@
             <div class="arcade-section hidden" id="tab-skins"></div>
             <div class="arcade-section hidden" id="tab-pets"></div>
             
-            <!-- RULETA DE PREMIOS Y CASTIGOS -->
             <div class="arcade-section hidden" id="tab-wheel">
                 <div class="wheel-box">
                     <div style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; text-align: center;">
@@ -749,6 +705,74 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // BANCO DE PREGUNTAS TEÓRICAS
+        const theoryQuestionsPool = [
+            {
+                q: "1. ¿En qué año aproximadamente se empezó a usar el cifrado César por el emperador Julio César?",
+                options: [
+                    { text: "En el 58 a.C. para enviar mensajes secretos a sus generales.", isCorrect: true },
+                    { text: "En el año 1990 para proteger páginas web.", isCorrect: false },
+                    { text: "En el 100 d.C. para redactar documentos públicos.", isCorrect: false }
+                ]
+            },
+            {
+                q: "2. ¿Cuál es la importancia del cifrado César en la historia de la tecnología?",
+                options: [
+                    { text: "Permitió crear las primeras pantallas táctiles.", isCorrect: false },
+                    { text: "Sentó las bases de la criptografía moderna de sustitución.", isCorrect: true },
+                    { text: "Aceleró la velocidad de procesamiento de las computadoras.", isCorrect: false }
+                ]
+            },
+            {
+                q: "3. En el Cifrado César, ¿qué representa la 'clave' o 'desplazamiento'?",
+                options: [
+                    { text: "El número de posiciones que se mueve cada letra en el alfabeto.", isCorrect: true },
+                    { text: "La contraseña secreta escrita en código binario.", isCorrect: false },
+                    { text: "El número total de letras que tiene el mensaje.", isCorrect: false }
+                ]
+            },
+            {
+                q: "4. Si aplicamos un desplazamiento César de +3 a la letra 'A', ¿en qué letra se convierte?",
+                options: [
+                    { text: "En la letra 'B'", isCorrect: false },
+                    { text: "En la letra 'C'", isCorrect: false },
+                    { text: "En la letra 'd'", isCorrect: true }
+                ]
+            },
+            {
+                q: "5. ¿Qué tipo de técnica de seguridad es el Cifrado César?",
+                options: [
+                    { text: "Cifrado por Sustitución Monoalfabética.", isCorrect: true },
+                    { text: "Algoritmo de Cifrado Cuántico Asimétrico.", isCorrect: false },
+                    { text: "Compresión de Archivos ZIP.", isCorrect: false }
+                ]
+            },
+            {
+                q: "6. ¿Cómo se llama al proceso de convertir un texto cifrado de vuelta a su mensaje original?",
+                options: [
+                    { text: "Encriptación", isCorrect: false },
+                    { text: "Descifrado o Desencriptación", isCorrect: true },
+                    { text: "Formateo", isCorrect: false }
+                ]
+            },
+            {
+                q: "7. ¿Cuál es la principal debilidad del Cifrado César frente a la informática actual?",
+                options: [
+                    { text: "Es muy fácil de romper mediante análisis de frecuencias o fuerza bruta.", isCorrect: true },
+                    { text: "Ocupa demasiado espacio en el disco duro.", isCorrect: false },
+                    { text: "Solo funciona si se envía por correo electrónico.", isCorrect: false }
+                ]
+            },
+            {
+                q: "8. Si descifras la letra cifrada 'f' que usó desplazamiento +3, ¿cuál era la letra original?",
+                options: [
+                    { text: "La letra 'C'", isCorrect: true },
+                    { text: "La letra 'D'", isCorrect: false },
+                    { text: "La letra 'E'", isCorrect: false }
+                ]
+            }
+        ];
+
         const plainWords = [
             "HOLA", "ROMA", "FUEGO", "MUNDO", "PERU",
             "JULIO", "CESAR", "CLAVE", "TEXTO", "DISCO", "DATOS", "EPOCA", "RUEDA", "REGLA", "GRADO",
@@ -758,6 +782,7 @@
         ];
 
         let currentPlainWord = "";
+        let activeQuestions = [];
         let allGradesData = [];
 
         function encryptKey3(word) {
@@ -783,13 +808,36 @@
                 return;
             }
 
+            // Seleccionar 4 preguntas teóricas al azar
+            const shuffledTheory = [...theoryQuestionsPool].sort(() => 0.5 - Math.random());
+            const selectedTheory = shuffledTheory.slice(0, 4);
+
+            // Generar la 5ta pregunta (Descifrado Práctico con Palabra al azar)
             const randomIndex = Math.floor(Math.random() * plainWords.length);
             currentPlainWord = plainWords[randomIndex];
             const cipherWord = encryptKey3(currentPlainWord);
 
-            document.getElementById('cipher-text-display').innerText = cipherWord;
+            const wordLen = currentPlainWord.length;
+            const sameLengthDistractors = plainWords.filter(w => w.length === wordLen && w !== currentPlainWord);
+            const shuffledDistractors = sameLengthDistractors.sort(() => 0.5 - Math.random()).slice(0, 2);
 
-            setupQ3MultipleChoice();
+            const practicalOptions = [
+                { text: currentPlainWord, isCorrect: true },
+                { text: shuffledDistractors[0], isCorrect: false },
+                { text: shuffledDistractors[1], isCorrect: false }
+            ].sort(() => 0.5 - Math.random());
+
+            activeQuestions = [
+                ...selectedTheory,
+                {
+                    q: `5. Descifra la siguiente palabra oculta cifrada con César (+3):`,
+                    isPractical: true,
+                    cipherText: cipherWord,
+                    options: practicalOptions
+                }
+            ];
+
+            renderExamQuestions();
 
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('exam-section').classList.remove('hidden');
@@ -797,30 +845,42 @@
             renderFixedAlphabetStrip();
         }
 
-        function setupQ3MultipleChoice() {
-            const wordLen = currentPlainWord.length;
-            const sameLengthDistractors = plainWords.filter(w => w.length === wordLen && w !== currentPlainWord);
-            
-            const shuffledDistractors = sameLengthDistractors.sort(() => 0.5 - Math.random());
-            const distractors = shuffledDistractors.slice(0, 2);
-
-            const options = [
-                { text: currentPlainWord, isCorrect: true },
-                { text: distractors[0], isCorrect: false },
-                { text: distractors[1], isCorrect: false }
-            ].sort(() => 0.5 - Math.random());
-
-            const container = document.getElementById('q3-options-container');
+        function renderExamQuestions() {
+            const container = document.getElementById('quiz-questions-container');
             container.innerHTML = '';
 
-            options.forEach((opt, idx) => {
-                const label = document.createElement('label');
-                label.className = 'option-label';
-                label.innerHTML = `
-                    <input type="radio" name="q3" value="${opt.isCorrect ? 'correct' : 'wrong'}">
-                    ${String.fromCharCode(97 + idx)}) ${opt.text}
-                `;
-                container.appendChild(label);
+            activeQuestions.forEach((qObj, index) => {
+                const box = document.createElement('div');
+                box.className = 'question-box';
+
+                let htmlContent = `<div class="question-title">${index + 1}. ${qObj.q.replace(/^[0-9]+\.\s*/, '')}</div>`;
+
+                if (qObj.isPractical) {
+                    htmlContent += `
+                        <div class="cipher-badge" id="cipher-text-display">${qObj.cipherText}</div>
+                        <div class="decoder-box">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">
+                                Tabla de equivalencias (+3 posiciones):
+                            </div>
+                            <div class="alphabet-strip-container">
+                                <div class="alphabet-row" id="alphabetRow"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                qObj.options.forEach((opt, optIdx) => {
+                    const letter = String.fromCharCode(97 + optIdx);
+                    htmlContent += `
+                        <label class="option-label">
+                            <input type="radio" name="q${index}" value="${opt.isCorrect ? 'correct' : 'wrong'}">
+                            ${letter}) ${opt.text}
+                        </label>
+                    `;
+                });
+
+                box.innerHTML = htmlContent;
+                container.appendChild(box);
             });
         }
 
@@ -865,6 +925,7 @@
 
         function renderFixedAlphabetStrip() {
             const container = document.getElementById('alphabetRow');
+            if (!container) return;
             container.innerHTML = '';
 
             for (let i = 0; i < 26; i++) {
@@ -879,21 +940,26 @@
         }
 
         window.submitExam = async function() {
-            const q1 = document.querySelector('input[name="q1"]:checked');
-            const q2 = document.querySelector('input[name="q2"]:checked');
-            const q3 = document.querySelector('input[name="q3"]:checked');
+            let correctCount = 0;
+            let allAnswered = true;
 
-            if (!q1 || !q2 || !q3) {
-                alert("Por favor responde todas las preguntas.");
+            for (let i = 0; i < 5; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    break;
+                }
+                if (selected.value === "correct") {
+                    correctCount++;
+                }
+            }
+
+            if (!allAnswered) {
+                alert("Por favor responde las 5 preguntas antes de enviar.");
                 return;
             }
 
-            let score = 0;
-            if (q1.value === "correct") score += 33.33;
-            if (q2.value === "correct") score += 33.33;
-            if (q3.value === "correct") score += 33.34;
-
-            const finalScore = Math.round(score);
+            const finalScore = correctCount * 20; // 5 preguntas x 20 pts = 100
             const name = document.getElementById('student-name').value;
             const grade = document.getElementById('student-grade').value;
 
@@ -957,7 +1023,6 @@
             { id: 'robot', icon: '🤖', name: 'Ciber Mente', bonusCPC: 250, mult: 3.5, cost: 35000, owned: false, equipped: false }
         ];
 
-        // CONFIGURACIÓN RULETA PREMIOS Y CASTIGOS
         const wheelSegments = [
             { label: '+500 🎁', type: 'prize', val: 'clicks_500', color: '#22c55e' },
             { label: '-50% 💀', type: 'penalty', val: 'lose_half', color: '#ef4444' },
@@ -1234,7 +1299,7 @@
             skins.forEach(s => {
                 const el = document.createElement('div');
                 el.className = 'skin-card';
-                el.onclick = () => useSkin(s.id); // Click en toda la tarjeta
+                el.onclick = () => useSkin(s.id);
                 el.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px; pointer-events:none;">
                         <span style="font-size:1.6rem;">${s.icon}</span>
@@ -1273,7 +1338,7 @@
             pets.forEach(p => {
                 const el = document.createElement('div');
                 el.className = 'skin-card';
-                el.onclick = () => togglePet(p.id); // Click en toda la tarjeta
+                el.onclick = () => togglePet(p.id);
                 el.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px; pointer-events:none;">
                         <span style="font-size:1.6rem;">${p.icon}</span>
@@ -1309,7 +1374,6 @@
             }
         }
 
-        // DIBUJAR Y GIRAR RULETA PREMIOS Y CASTIGOS
         function drawGachaWheel() {
             const c = document.getElementById('gachaCanvas');
             if(!c) return;
@@ -1332,7 +1396,6 @@
                 ctx.strokeStyle = '#0f172a';
                 ctx.stroke();
 
-                // Dibujar Texto
                 ctx.save();
                 ctx.rotate(i * arc + arc / 2);
                 ctx.textAlign = 'right';
@@ -1343,7 +1406,6 @@
             }
             ctx.restore();
 
-            // Marcador arriba
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             ctx.moveTo(80, 14);
@@ -1372,7 +1434,6 @@
                     isSpinning = false;
                     document.getElementById('spinBtn').disabled = false;
 
-                    // Calcular resultado según el ángulo del puntero (Arriba = 3*PI/2)
                     let normalizedAngle = (wheelAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
                     let pointerAngle = (1.5 * Math.PI - normalizedAngle + 2 * Math.PI) % (2 * Math.PI);
                     let index = Math.floor(pointerAngle / ((2 * Math.PI) / wheelSegments.length)) % wheelSegments.length;
@@ -1530,5 +1591,4 @@
         }
     </script>
 </body>
-    
 </html>
