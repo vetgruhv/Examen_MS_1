@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen interactivo: Cifrado César & Arcade Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 30px 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 680px;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        h1, h2 { color: #0f172a; margin-bottom: 8px; font-weight: 700; text-align: center; }
+        p.subtitle { text-align: center; color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: #334155; }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            background-color: #f8fafc;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        button.btn-main {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        button.btn-main:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+
+        .hidden { display: none !important; }
+
+        .question-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .question-title { font-weight: 600; margin-bottom: 10px; color: #0f172a; font-size: 0.95rem; }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover { border-color: var(--primary); background: #f0fdf4; }
+        .option-label input { margin-right: 12px; accent-color: var(--primary); transform: scale(1.2); }
+
+        .decoder-box {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .cipher-badge {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 5px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            text-transform: lowercase;
+        }
+
+        .alphabet-strip-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin: 10px 0;
+        }
+
+        .alphabet-row {
+            display: flex;
+            justify-content: flex-start;
+            gap: 6px;
+            min-width: 780px;
+        }
+
+        .letter-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 8px;
+            width: 28px;
+        }
+
+        .letter-pair .top { font-weight: bold; color: #0f172a; font-size: 0.85rem; }
+        .letter-pair .bottom { font-weight: bold; color: var(--primary); font-size: 0.85rem; }
+
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+        .admin-table th { background-color: #f8fafc; font-weight: 600; }
+
+        /* CLICKER HYPER SIMULATOR */
+        .fidget-card {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 680px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            transition: transform 0.05s;
+        }
+
+        .fidget-card.shake { animation: cardShake 0.15s ease-in-out; }
+        @keyframes cardShake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-4px, 4px) rotate(-1deg); }
+            75% { transform: translate(4px, -4px) rotate(1deg); }
+        }
+
+        .fidget-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1.1rem;
+        }
+
+        .clicker-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+            padding: 22px 18px;
+            border-radius: 24px;
+            border: 2px solid #6366f1;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.45);
+            position: relative;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .combo-banner {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #f59e0b;
+            text-shadow: 0 0 15px #f59e0b;
+            height: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+        .stats-bar b { color: #38bdf8; font-size: 0.9rem; }
+
+        .buy-mode-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .buy-mode-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 800;
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .buy-mode-btn.active {
+            background: #6366f1;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+        }
+
+        .arcade-tabs {
+            display: flex;
+            gap: 4px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 7px 2px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+            border: 1px solid #818cf8;
+            box-shadow: 0 0 12px rgba(129, 140, 248, 0.4);
+        }
+
+        .fever-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .fever-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #06b6d4, #ec4899, #f59e0b);
+            transition: width 0.1s linear;
+        }
+
+        .clicker-score {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+            line-height: 1;
+        }
+
+        /* CONTENEDOR Y ORBITA DE MASCOTAS */
+        .clicker-btn-wrapper {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        #particleCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .clicker-btn {
+            width: 135px;
+            height: 135px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.4);
+            background: radial-gradient(circle at 30% 30%, #f43f5e 0%, #be123c 60%, #881337 100%);
+            color: white;
+            font-size: 3.8rem;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #4c0519, 0 0 35px rgba(244, 63, 94, 0.7);
+            transition: transform 0.05s, box-shadow 0.05s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .clicker-btn:active {
+            transform: translateY(6px) scale(0.95);
+            box-shadow: 0 2px 0 #4c0519, 0 0 20px rgba(244, 63, 94, 0.9);
+        }
+
+        /* MASCOTAS EN PANTALLA ORBITANDO */
+        .pets-orbit-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .pet-avatar {
+            position: absolute;
+            font-size: 2rem;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 12px rgba(255,255,255,0.3);
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            animation: floatPet 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatPet {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(-8px) scale(1.1); }
+        }
+
+        .pet-avatar.pet-bounce {
+            animation: petAction 0.3s ease-out;
+        }
+
+        @keyframes petAction {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5) rotate(15deg); }
+            100% { transform: scale(1); }
+        }
+
+        /* ELEMENTOS FLOTANTES Y TOASTS */
+        .golden-item {
+            position: absolute;
+            font-size: 2.3rem;
+            cursor: pointer;
+            z-index: 30;
+            animation: pulseGlow 0.8s infinite alternate;
+            user-select: none;
+            filter: drop-shadow(0 0 15px #f59e0b);
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) rotate(-10deg); }
+            100% { transform: scale(1.3) rotate(10deg); }
+        }
+
+        .floating-num {
+            position: absolute;
+            font-weight: 900;
+            font-size: 1.6rem;
+            color: #38bdf8;
+            pointer-events: none;
+            animation: floatUp 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+            z-index: 20;
+        }
+
+        .floating-num.crit {
+            color: #f59e0b;
+            font-size: 2.3rem;
+            text-shadow: 0 0 15px #f59e0b;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.8); }
+            50% { transform: translateY(-40px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1); }
+        }
+
+        .achievement-toast {
+            position: absolute;
+            top: 10px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+            z-index: 40;
+            animation: toastPop 0.3s ease-out;
+        }
+
+        @keyframes toastPop {
+            0% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .upgrades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 8px;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .upgrades-grid::-webkit-scrollbar { width: 5px; }
+        .upgrades-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        /* MEJORA CLICKEABLE EN TODO EL BOTÓN */
+        .upgrade-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            user-select: none;
+        }
+
+        .upgrade-btn * {
+            pointer-events: none; /* Asegura que al hacer clic sobre cualquier subtexto o span se active el botón completo */
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(0.8);
+        }
+
+        .upgrade-title { font-weight: 800; font-size: 0.82rem; color: #ffffff; }
+        .upgrade-desc { font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; }
+        .upgrade-footer { display: flex; justify-content: space-between; width: 100%; font-size: 0.78rem; }
+        .upgrade-cost { color: #38bdf8; font-weight: 800; }
+        .upgrade-count { color: #ec4899; font-weight: 800; }
+
+        .arcade-section { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+
+        .skin-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+        }
+
+        .wheel-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+        }
+
+        #gachaCanvas { border-radius: 50%; box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+
+        .rebirth-card {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%);
+            border: 2px solid #ec4899;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div class="card" id="login-section">
+        <h1>Examen de Criptografía</h1>
+        <p class="subtitle">Ingresa tus datos para comenzar la evaluación</p>
+
+        <div class="form-group">
+            <label for="student-name">Nombre y Apellido</label>
+            <input type="text" id="student-name" placeholder="Ej. Ana García" required>
+        </div>
+
+        <div class="form-group">
+            <label for="student-grade">Grado</label>
+            <select id="student-grade">
+                <option value="7A">7A</option>
+                <option value="7B">7B</option>
+                <option value="8A">8A</option>
+                <option value="8B">8B</option>
+                <option value="9">9</option>
+            </select>
+        </div>
+
+        <button class="btn-main" onclick="startExam()">Comenzar Examen</button>
+    </div>
+
+    <!-- PREGUNTAS -->
+    <div class="card hidden" id="exam-section">
+        <h2>Preguntas de Evaluación</h2>
+        <p class="subtitle">Responde las preguntas marcando la opción correcta</p>
+
+        <form id="quiz-form">
+            <div class="question-box">
+                <div class="question-title">
+                    1. En el año 58 a.C. se empezó a usar el cifrado César por el emperador Julio César para enviar mensajes secretos a sus generales en batalla. ¿En qué año se empezó a usar y cuál era su objetivo?
+                </div>
+                <label class="option-label"><input type="radio" name="q1" value="correct"> a) En el 58 a.C. para enviar mensajes secretos a sus generales.</label>
+                <label class="option-label"><input type="radio" name="q1" value="wrong"> b) En el año 1990 para proteger páginas web.</label>
+                <label class="option-label"><input type="radio" name="q1" value="wrong"> c) En el 100 d.C. para redactar documentos públicos.</label>
+            </div>
+
+            <div class="question-box">
+                <div class="question-title">
+                    2. La importancia en la tecnología de este método radica en que sentó las bases de la criptografía moderna de sustitución para proteger información digital. ¿Cuál es su importancia tecnológica?
+                </div>
+                <label class="option-label"><input type="radio" name="q2" value="wrong"> a) Permitió crear las primeras pantallas táctiles.</label>
+                <label class="option-label"><input type="radio" name="q2" value="correct"> b) Sentó las bases de la criptografía moderna de sustitución.</label>
+                <label class="option-label"><input type="radio" name="q2" value="wrong"> c) Aceleró la velocidad de procesamiento de las computadoras.</label>
+            </div>
+
+            <div class="question-box">
+                <div class="question-title">
+                    3. Descifra la siguiente palabra oculta utilizando la tabla de correspondencia César (Desplazamiento +3). Selecciona la opción correcta:
+                </div>
+
+                <div class="cipher-badge" id="cipher-text-display">...</div>
+
+                <div class="decoder-box">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">
+                        Tabla de equivalencias (+3 posiciones):
+                    </div>
+                    <div class="alphabet-strip-container">
+                        <div class="alphabet-row" id="alphabetRow"></div>
+                    </div>
+                </div>
+
+                <div id="q3-options-container" style="margin-top: 15px;"></div>
+            </div>
+
+            <button type="button" class="btn-main" onclick="submitExam()">Enviar Respuestas</button>
+        </form>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div class="card hidden" id="result-section">
+        <h2>Examen Finalizado</h2>
+        <p class="subtitle">Tus respuestas han sido procesadas con éxito</p>
+        <div style="font-size: 3rem; font-weight: 700; color: var(--primary); text-align: center; margin: 20px 0;" id="final-score">0 / 100</div>
+    </div>
+
+    <!-- PANEL ADMINISTRADOR -->
+    <div class="card hidden" id="admin-section">
+        <h2>Panel de Calificaciones</h2>
+        <p class="subtitle">Consulta de notas por sección</p>
+
+        <div class="form-group">
+            <select id="admin-grade-filter" onchange="filterGrades()">
+                <option value="ALL">Todas las secciones</option>
+                <option value="7A">7A</option>
+                <option value="7B">7B</option>
+                <option value="8A">8A</option>
+                <option value="8B">8B</option>
+                <option value="9">9</option>
+            </select>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Grado</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody id="grades-tbody">
+            </tbody>
+        </table>
+
+        <button class="btn-main" onclick="location.reload()" style="margin-top:20px;">Cerrar Sesión</button>
+    </div>
+
+    <!-- CLICKER SIMULATOR OCULTO POR DEFECTO -->
+    <div class="fidget-card" id="fidgetCard">
+        <div class="fidget-title" onclick="toggleFidget()">
+            <span>No Abrir</span>
+            <span id="fidgetToggleIcon">▲</span>
+        </div>
+        
+        <div class="clicker-container hidden" id="fidgetContent">
+            <div id="toastContainer"></div>
+
+            <div class="combo-banner" id="comboDisplay"></div>
+
+            <div class="top-controls">
+                <div class="stats-bar">
+                    <span>CPC: <b id="cpcDisplay">1</b></span>
+                    <span>CPS: <b id="cpsDisplay">0</b></span>
+                    <span>💎 Gemas: <b id="gemsDisplay">0</b></span>
+                </div>
+
+                <div class="buy-mode-selector">
+                    <button class="buy-mode-btn active" onclick="setBuyMode(1, this)">x1</button>
+                    <button class="buy-mode-btn" onclick="setBuyMode(10, this)">x10</button>
+                    <button class="buy-mode-btn" onclick="setBuyMode(100, this)">x100</button>
+                    <button class="buy-mode-btn" onclick="setBuyMode('MAX', this)">MAX</button>
+                </div>
+            </div>
+
+            <div class="fever-bar-container">
+                <div class="fever-bar" id="feverBar"></div>
+            </div>
+
+            <div class="clicker-score" id="scoreDisplay">0</div>
+
+            <!-- CONTENEDOR CON ORBITA DE MASCOTAS -->
+            <div class="clicker-btn-wrapper" id="btnWrapper">
+                <canvas id="particleCanvas" width="250" height="250"></canvas>
+                <div class="pets-orbit-layer" id="petsOrbitContainer"></div>
+                <button class="clicker-btn" id="mainClickerBtn" onclick="handleClick(event)">⚡</button>
+            </div>
+
+            <div class="arcade-tabs">
+                <button class="tab-btn active" onclick="switchArcadeTab('upgrades', this)">⚡ Mejoras</button>
+                <button class="tab-btn" onclick="switchArcadeTab('skins', this)">🎨 Aspectos</button>
+                <button class="tab-btn" onclick="switchArcadeTab('pets', this)">🐱 Mascotas</button>
+                <button class="tab-btn" onclick="switchArcadeTab('wheel', this)">🎰 Ruleta</button>
+                <button class="tab-btn" onclick="switchArcadeTab('rebirth', this)">🌌 Renacer</button>
+            </div>
+
+            <div class="upgrades-grid arcade-section" id="tab-upgrades"></div>
+            <div class="arcade-section hidden" id="tab-skins"></div>
+            <div class="arcade-section hidden" id="tab-pets"></div>
+            
+            <!-- RULETA DE PREMIOS Y CASTIGOS -->
+            <div class="arcade-section hidden" id="tab-wheel">
+                <div class="wheel-box">
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; text-align: center;">
+                        🎰 Ruleta de Premios y Castigos 💀
+                    </div>
+                    <canvas id="gachaCanvas" width="160" height="160"></canvas>
+                    <button class="btn-main" id="spinBtn" style="max-width:220px; margin:0;" onclick="spinWheel()">Girar (100 Clics)</button>
+                </div>
+            </div>
+
+            <div class="arcade-section hidden" id="tab-rebirth">
+                <div class="rebirth-card">
+                    <h3 style="color:#ec4899; margin-bottom:4px; font-size:1rem;">🌌 Renacer Dimensional</h3>
+                    <p style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">Reinicia tu progreso por <b>Cristales 💎</b> (+50% multiplicador global permanente cada uno).</p>
+                    <div style="font-size:0.85rem; font-weight:800; color:#38bdf8; margin-bottom:8px;" id="rebirthGainText">Ganarás: +0 Cristales</div>
+                    <button class="btn-main" style="background:linear-gradient(135deg, #ec4899, #818cf8); padding:10px;" onclick="doRebirth()">¡RENACER AHORA!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Firebase v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1hODHT9xrx2XsP2hiMCd-GQjf0fRuhkQ",
+            authDomain: "examen-ms.firebaseapp.com",
+            projectId: "examen-ms",
+            storageBucket: "examen-ms.firebasestorage.app",
+            messagingSenderId: "296706860097",
+            appId: "1:296706860097:web:dac067f77f992a784952c0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const plainWords = [
+            "HOLA", "ROMA", "FUEGO", "MUNDO", "PERU",
+            "JULIO", "CESAR", "CLAVE", "TEXTO", "DISCO", "DATOS", "EPOCA", "RUEDA", "REGLA", "GRADO",
+            "GUERRA", "CODIGO", "CRIPTO", "AVANCE", "FUTURO", "TIEMPO", "ANILLO", "LETRAS", "NUMERO", "METODO", "OCULTO", "ENIGMA", "PENSAR", "LOGICA", "EXAMEN",
+            "SECRETO", "MENSAJE", "BATALLA", "SISTEMA", "PRIVADO", "CIFRADO", "IMPERIO", "GENERAL", "SOLDADO", "CIRCULO", "CIENCIA", "ESTUDIO", "ESCUELA",
+            "INTERNET", "HISTORIA", "ALFABETO", "MISTERIO"
+        ];
+
+        let currentPlainWord = "";
+        let allGradesData = [];
+
+        function encryptKey3(word) {
+            let result = "";
+            for (let i = 0; i < word.length; i++) {
+                let code = word.charCodeAt(i);
+                result += String.fromCharCode(((code - 65 + 3) % 26) + 97);
+            }
+            return result;
+        }
+
+        window.startExam = async function() {
+            const name = document.getElementById('student-name').value.trim();
+            if(name === "") {
+                alert("Por favor escribe tu nombre y apellido.");
+                return;
+            }
+
+            if(name.toLowerCase() === "pancha2000") {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('admin-section').classList.remove('hidden');
+                await loadGrades();
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * plainWords.length);
+            currentPlainWord = plainWords[randomIndex];
+            const cipherWord = encryptKey3(currentPlainWord);
+
+            document.getElementById('cipher-text-display').innerText = cipherWord;
+
+            setupQ3MultipleChoice();
+
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('exam-section').classList.remove('hidden');
+
+            renderFixedAlphabetStrip();
+        }
+
+        function setupQ3MultipleChoice() {
+            const wordLen = currentPlainWord.length;
+            const sameLengthDistractors = plainWords.filter(w => w.length === wordLen && w !== currentPlainWord);
+            
+            const shuffledDistractors = sameLengthDistractors.sort(() => 0.5 - Math.random());
+            const distractors = shuffledDistractors.slice(0, 2);
+
+            const options = [
+                { text: currentPlainWord, isCorrect: true },
+                { text: distractors[0], isCorrect: false },
+                { text: distractors[1], isCorrect: false }
+            ].sort(() => 0.5 - Math.random());
+
+            const container = document.getElementById('q3-options-container');
+            container.innerHTML = '';
+
+            options.forEach((opt, idx) => {
+                const label = document.createElement('label');
+                label.className = 'option-label';
+                label.innerHTML = `
+                    <input type="radio" name="q3" value="${opt.isCorrect ? 'correct' : 'wrong'}">
+                    ${String.fromCharCode(97 + idx)}) ${opt.text}
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        async function loadGrades() {
+            const tbody = document.getElementById('grades-tbody');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Cargando...</td></tr>';
+            try {
+                const querySnapshot = await getDocs(collection(db, "calificaciones"));
+                allGradesData = [];
+                querySnapshot.forEach((doc) => {
+                    allGradesData.push(doc.data());
+                });
+                renderGrades();
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Error al cargar datos.</td></tr>';
+            }
+        }
+
+        window.filterGrades = function() { renderGrades(); }
+
+        function renderGrades() {
+            const selectedGrade = document.getElementById('admin-grade-filter').value;
+            const tbody = document.getElementById('grades-tbody');
+            tbody.innerHTML = '';
+
+            const filtered = selectedGrade === 'ALL'
+                ? allGradesData
+                : allGradesData.filter(d => d.grado === selectedGrade);
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No hay registros.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${item.nombre}</td><td>${item.grado}</td><td><b>${item.calificacion} / 100</b></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderFixedAlphabetStrip() {
+            const container = document.getElementById('alphabetRow');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 26; i++) {
+                const plainChar = String.fromCharCode(65 + i);
+                const cipherChar = String.fromCharCode(((i + 3) % 26) + 97);
+
+                const pair = document.createElement('div');
+                pair.className = 'letter-pair';
+                pair.innerHTML = `<span class="top">${plainChar}</span><span class="bottom">${cipherChar}</span>`;
+                container.appendChild(pair);
+            }
+        }
+
+        window.submitExam = async function() {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+
+            if (!q1 || !q2 || !q3) {
+                alert("Por favor responde todas las preguntas.");
+                return;
+            }
+
+            let score = 0;
+            if (q1.value === "correct") score += 33.33;
+            if (q2.value === "correct") score += 33.33;
+            if (q3.value === "correct") score += 33.34;
+
+            const finalScore = Math.round(score);
+            const name = document.getElementById('student-name').value;
+            const grade = document.getElementById('student-grade').value;
+
+            try {
+                await addDoc(collection(db, "calificaciones"), {
+                    nombre: name,
+                    grado: grade,
+                    calificacion: finalScore,
+                    fecha: new Date()
+                });
+
+                document.getElementById('exam-section').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+                document.getElementById('final-score').innerText = `${finalScore} / 100`;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+
+    <!-- MOTOR CLICKER SIMULATOR TOTALMENTE FUNCIONAL CON BOTONES BOTÓN COMPLETO Y RULETA PREMIOS/CASTIGOS -->
+    <script>
+        let clicks = 0;
+        let totalClicksEarned = 0;
+        let gems = 0;
+        let clickPower = 1;
+        let autoCPS = 0;
+        let feverVal = 0;
+        let isFever = false;
+        let comboStreak = 0;
+        let comboTimer = null;
+        let buyMode = 1; // 1, 10, 100, 'MAX'
+        let activeSkin = '⚡';
+        let isSpinning = false;
+        let wheelAngle = 0;
+        let audioCtx = null;
+
+        const upgrades = [
+            { id: 0, title: '⚡ Clic Potenciado', desc: '+1 por clic', baseCost: 15, cost: 15, lvl: 0, type: 'cpc', val: 1 },
+            { id: 1, title: '🤖 Auto-Clicker', desc: '+1 por seg', baseCost: 40, cost: 40, lvl: 0, type: 'cps', val: 1 },
+            { id: 2, title: '🔥 Super Combo', desc: '+5 por clic', baseCost: 120, cost: 120, lvl: 0, type: 'cpc', val: 5 },
+            { id: 3, title: '🚀 Bot Acelerado', desc: '+8 por seg', baseCost: 350, cost: 350, lvl: 0, type: 'cps', val: 8 },
+            { id: 4, title: '💥 Multiplicador', desc: '+20 por clic', baseCost: 1000, cost: 1000, lvl: 0, type: 'cpc', val: 20 },
+            { id: 5, title: '🏭 Fábrica Clics', desc: '+45 por seg', baseCost: 3000, cost: 3000, lvl: 0, type: 'cps', val: 45 },
+            { id: 6, title: '🔮 Poder Místico', desc: '+100 por clic', baseCost: 9000, cost: 9000, lvl: 0, type: 'cpc', val: 100 },
+            { id: 7, title: '🪐 Granja Cuántica', desc: '+300 por seg', baseCost: 25000, cost: 25000, lvl: 0, type: 'cps', val: 300 }
+        ];
+
+        const skins = [
+            { id: 'rayo', icon: '⚡', name: 'Rayo Estándar', cost: 0, owned: true, bg: 'radial-gradient(circle, #f43f5e 0%, #be123c 100%)' },
+            { id: 'fuego', icon: '🔥', name: 'Flama Solar', cost: 200, owned: false, bg: 'radial-gradient(circle, #f97316 0%, #c2410c 100%)' },
+            { id: 'diamante', icon: '💎', name: 'Gema Neón', cost: 1000, owned: false, bg: 'radial-gradient(circle, #06b6d4 0%, #0e7490 100%)' },
+            { id: 'ovni', icon: '🛸', name: 'Invasor Cósmico', cost: 5000, owned: false, bg: 'radial-gradient(circle, #a855f7 0%, #6b21a8 100%)' },
+            { id: 'corona', icon: '👑', name: 'Corona Real', cost: 20000, owned: false, bg: 'radial-gradient(circle, #eab308 0%, #a16207 100%)' }
+        ];
+
+        const pets = [
+            { id: 'gato', icon: '🐱', name: 'Gato Clicador', bonusCPC: 2, mult: 1.2, cost: 300, owned: false, equipped: false },
+            { id: 'perro', icon: '🐶', name: 'Perro Dorado', bonusCPC: 10, mult: 1.5, cost: 1500, owned: false, equipped: false },
+            { id: 'dragon', icon: '🐲', name: 'Dragón Fuego', bonusCPC: 50, mult: 2.0, cost: 8000, owned: false, equipped: false },
+            { id: 'robot', icon: '🤖', name: 'Ciber Mente', bonusCPC: 250, mult: 3.5, cost: 35000, owned: false, equipped: false }
+        ];
+
+        // CONFIGURACIÓN RULETA PREMIOS Y CASTIGOS
+        const wheelSegments = [
+            { label: '+500 🎁', type: 'prize', val: 'clicks_500', color: '#22c55e' },
+            { label: '-50% 💀', type: 'penalty', val: 'lose_half', color: '#ef4444' },
+            { label: '+2 💎', type: 'prize', val: 'gems_2', color: '#06b6d4' },
+            { label: 'Frío ❄️', type: 'penalty', val: 'lose_fever', color: '#64748b' },
+            { label: 'Fuego 🔥', type: 'prize', val: 'full_fever', color: '#f59e0b' },
+            { label: '-200 💸', type: 'penalty', val: 'lose_200', color: '#9333ea' }
+        ];
+
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function recalculateStats() {
+            let baseCPC = 1;
+            let baseCPS = 0;
+            upgrades.forEach(u => {
+                if (u.type === 'cpc') baseCPC += u.lvl * u.val;
+                if (u.type === 'cps') baseCPS += u.lvl * u.val;
+            });
+
+            let petMultiplier = 1;
+            pets.filter(p => p.equipped).forEach(p => {
+                baseCPC += p.bonusCPC;
+                petMultiplier *= p.mult;
+            });
+
+            let gemMultiplier = 1 + (gems * 0.5);
+            clickPower = Math.round(baseCPC * petMultiplier * gemMultiplier);
+            autoCPS = Math.round(baseCPS * petMultiplier * gemMultiplier);
+        }
+
+        function addParticles(x, y, color) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    size: Math.random() * 6 + 2,
+                    color: color || ['#38bdf8', '#ec4899', '#f59e0b', '#818cf8'][Math.floor(Math.random() * 4)],
+                    life: 1
+                });
+            }
+        }
+
+        function updateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.size *= 0.94; p.life -= 0.03;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fill();
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+            requestAnimationFrame(updateParticles);
+        }
+        updateParticles();
+
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function playSound(freq, duration) {
+            try {
+                const actx = getAudioContext();
+                const osc = actx.createOscillator();
+                const gain = actx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, actx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, actx.currentTime + duration);
+                gain.gain.setValueAtTime(0.2, actx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(actx.destination);
+                osc.start();
+                osc.stop(actx.currentTime + duration);
+            } catch(e){}
+        }
+
+        function triggerScreenShake() {
+            const card = document.getElementById('fidgetCard');
+            card.classList.remove('shake');
+            void card.offsetWidth;
+            card.classList.add('shake');
+        }
+
+        function handleClick(e) {
+            comboStreak++;
+            clearTimeout(comboTimer);
+            comboTimer = setTimeout(() => { comboStreak = 0; updateUI(); }, 1200);
+
+            let comboMult = 1 + Math.floor(comboStreak / 10) * 0.5;
+            let isCrit = Math.random() < 0.15;
+            let mult = (isFever ? 3 : 1) * (isCrit ? 5 : 1) * comboMult;
+            let earned = Math.round(clickPower * mult);
+
+            clicks += earned;
+            totalClicksEarned += earned;
+
+            playSound(isCrit ? 900 : 350 + Math.min(comboStreak * 10, 500), 0.08);
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e ? e.clientX - rect.left : canvas.width / 2;
+            const clickY = e ? e.clientY - rect.top : canvas.height / 2;
+            
+            addParticles(clickX, clickY, isCrit ? '#f59e0b' : null);
+            createFloatingText(isCrit ? `CRIT! +${formatNum(earned)}` : `+${formatNum(earned)}`, e, isCrit);
+
+            if (isCrit) triggerScreenShake();
+
+            if (!isFever) {
+                feverVal = Math.min(100, feverVal + 5);
+                if (feverVal >= 100) {
+                    isFever = true;
+                    showToast('🔥 ¡MODO FUEGO 3X ACTIVADO!');
+                }
+            }
+
+            updateUI();
+        }
+
+        function createFloatingText(text, e, isCrit) {
+            const wrapper = document.getElementById('btnWrapper');
+            const el = document.createElement('div');
+            el.className = `floating-num ${isCrit ? 'crit' : ''}`;
+            el.innerText = text;
+            
+            const rect = wrapper.getBoundingClientRect();
+            const x = (e ? e.clientX - rect.left : rect.width / 2) + (Math.random() * 20 - 10);
+            const y = (e ? e.clientY - rect.top : rect.height / 2) - 10;
+
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+
+            wrapper.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function updatePetsOrbitDisplay() {
+            const container = document.getElementById('petsOrbitContainer');
+            container.innerHTML = '';
+
+            const equippedPets = pets.filter(p => p.equipped);
+            const total = equippedPets.length;
+            if (total === 0) return;
+
+            const radius = 95;
+            const centerX = 125 - 21;
+            const centerY = 125 - 21;
+
+            equippedPets.forEach((p, index) => {
+                const angle = (index / total) * 2 * Math.PI - (Math.PI / 2);
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+
+                const petEl = document.createElement('div');
+                petEl.className = 'pet-avatar';
+                petEl.id = `pet-avatar-${p.id}`;
+                petEl.innerText = p.icon;
+                petEl.style.left = `${x}px`;
+                petEl.style.top = `${y}px`;
+
+                container.appendChild(petEl);
+            });
+        }
+
+        setInterval(() => {
+            const equippedPets = pets.filter(p => p.equipped);
+            if (equippedPets.length > 0) {
+                equippedPets.forEach(p => {
+                    const avatar = document.getElementById(`pet-avatar-${p.id}`);
+                    if (avatar) {
+                        avatar.classList.add('pet-bounce');
+                        setTimeout(() => avatar.classList.remove('pet-bounce'), 300);
+                    }
+                });
+            }
+        }, 3000);
+
+        function switchArcadeTab(tabName, btnEl) {
+            document.querySelectorAll('.arcade-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            btnEl.classList.add('active');
+
+            if (tabName === 'skins') renderSkins();
+            if (tabName === 'pets') renderPets();
+            if (tabName === 'wheel') drawGachaWheel();
+        }
+
+        function setBuyMode(mode, btnEl) {
+            buyMode = mode;
+            document.querySelectorAll('.buy-mode-btn').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            updateUI();
+        }
+
+        const RATE = 1.45;
+        function getSeriesCost(baseCost, k) {
+            return baseCost * (Math.pow(RATE, k) - 1) / (RATE - 1);
+        }
+
+        function getCostForKLevels(upg, k) {
+            return Math.round(getSeriesCost(upg.cost, k));
+        }
+
+        function getMaxAffordableLevels(upg) {
+            if (clicks < upg.cost) return { count: 1, cost: upg.cost };
+            let maxK = Math.floor(Math.log(1 + (clicks * (RATE - 1)) / upg.cost) / Math.log(RATE));
+            maxK = Math.max(1, maxK);
+            let cost = Math.round(getSeriesCost(upg.cost, maxK));
+            return { count: maxK, cost: cost };
+        }
+
+        function buyUpgrade(id) {
+            const upg = upgrades[id];
+            let levelsToBuy = 1;
+            let totalCost = upg.cost;
+
+            if (buyMode === 10) {
+                levelsToBuy = 10;
+                totalCost = getCostForKLevels(upg, 10);
+            } else if (buyMode === 100) {
+                levelsToBuy = 100;
+                totalCost = getCostForKLevels(upg, 100);
+            } else if (buyMode === 'MAX') {
+                const maxInfo = getMaxAffordableLevels(upg);
+                levelsToBuy = maxInfo.count;
+                totalCost = maxInfo.cost;
+            }
+
+            if (clicks >= totalCost) {
+                clicks -= totalCost;
+                upg.cost = Math.round(upg.cost * Math.pow(RATE, levelsToBuy));
+                upg.lvl += levelsToBuy;
+
+                recalculateStats();
+                playSound(650, 0.1);
+                updateUI();
+            }
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('tab-upgrades');
+            container.innerHTML = '';
+
+            upgrades.forEach((upg) => {
+                const btn = document.createElement('button');
+                btn.className = 'upgrade-btn';
+                btn.id = `upg-btn-${upg.id}`;
+                btn.onclick = () => buyUpgrade(upg.id);
+                btn.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <span class="upgrade-title">${upg.title}</span>
+                    </div>
+                    <span class="upgrade-desc">${upg.desc}</span>
+                    <div class="upgrade-footer">
+                        <span class="upgrade-cost" id="upg-cost-${upg.id}">${formatNum(upg.cost)} Clics</span>
+                        <span class="upgrade-count" id="upg-lvl-${upg.id}">Niv. ${upg.lvl}</span>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderSkins() {
+            const container = document.getElementById('tab-skins');
+            container.innerHTML = '';
+            skins.forEach(s => {
+                const el = document.createElement('div');
+                el.className = 'skin-card';
+                el.onclick = () => useSkin(s.id); // Click en toda la tarjeta
+                el.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px; pointer-events:none;">
+                        <span style="font-size:1.6rem;">${s.icon}</span>
+                        <div>
+                            <div style="font-weight:800; font-size:0.82rem; color:#fff;">${s.name}</div>
+                            <div style="font-size:0.72rem; color:#94a3b8;">${s.owned ? (activeSkin === s.icon ? 'Equipado' : 'Disponible') : `${formatNum(s.cost)} Clics`}</div>
+                        </div>
+                    </div>
+                    <button class="buy-mode-btn ${activeSkin === s.icon ? 'active' : ''}" style="pointer-events:none;">${s.owned ? 'Usar' : 'Comprar'}</button>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function useSkin(id) {
+            const s = skins.find(x => x.id === id);
+            if (s.owned) {
+                activeSkin = s.icon;
+                document.getElementById('mainClickerBtn').innerText = activeSkin;
+                document.getElementById('mainClickerBtn').style.background = s.bg;
+                renderSkins();
+            } else if (clicks >= s.cost) {
+                clicks -= s.cost;
+                s.owned = true;
+                activeSkin = s.icon;
+                document.getElementById('mainClickerBtn').innerText = activeSkin;
+                document.getElementById('mainClickerBtn').style.background = s.bg;
+                renderSkins();
+                updateUI();
+            }
+        }
+
+        function renderPets() {
+            const container = document.getElementById('tab-pets');
+            container.innerHTML = '';
+            pets.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'skin-card';
+                el.onclick = () => togglePet(p.id); // Click en toda la tarjeta
+                el.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px; pointer-events:none;">
+                        <span style="font-size:1.6rem;">${p.icon}</span>
+                        <div>
+                            <div style="font-weight:800; font-size:0.82rem; color:#fff;">${p.name}</div>
+                            <div style="font-size:0.7rem; color:#38bdf8;">+${p.bonusCPC} CPC | Multi: ${p.mult}x</div>
+                        </div>
+                    </div>
+                    <button class="buy-mode-btn ${p.equipped ? 'active' : ''}" style="pointer-events:none;">
+                        ${p.owned ? (p.equipped ? 'Equipada' : 'Equipar') : `${formatNum(p.cost)} Clics`}
+                    </button>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function togglePet(id) {
+            const p = pets.find(x => x.id === id);
+            if (p.owned) {
+                p.equipped = !p.equipped;
+                recalculateStats();
+                updatePetsOrbitDisplay();
+                renderPets();
+                updateUI();
+            } else if (clicks >= p.cost) {
+                clicks -= p.cost;
+                p.owned = true;
+                p.equipped = true;
+                recalculateStats();
+                updatePetsOrbitDisplay();
+                renderPets();
+                updateUI();
+            }
+        }
+
+        // DIBUJAR Y GIRAR RULETA PREMIOS Y CASTIGOS
+        function drawGachaWheel() {
+            const c = document.getElementById('gachaCanvas');
+            if(!c) return;
+            const ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, 160, 160);
+            
+            ctx.save();
+            ctx.translate(80, 80);
+            ctx.rotate(wheelAngle);
+
+            const arc = (2 * Math.PI) / wheelSegments.length;
+
+            for (let i = 0; i < wheelSegments.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, 75, i * arc, (i + 1) * arc);
+                ctx.fillStyle = wheelSegments[i].color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#0f172a';
+                ctx.stroke();
+
+                // Dibujar Texto
+                ctx.save();
+                ctx.rotate(i * arc + arc / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px Poppins';
+                ctx.fillText(wheelSegments[i].label, 68, 4);
+                ctx.restore();
+            }
+            ctx.restore();
+
+            // Marcador arriba
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(80, 14);
+            ctx.lineTo(72, 2);
+            ctx.lineTo(88, 2);
+            ctx.fill();
+        }
+
+        function spinWheel() {
+            if (isSpinning || clicks < 100) return;
+            clicks -= 100;
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+
+            let spins = 25 + Math.random() * 15;
+            let currentSpin = 0;
+
+            function animateSpin() {
+                wheelAngle += (spins - currentSpin) * 0.025;
+                drawGachaWheel();
+                currentSpin += 0.25;
+
+                if (currentSpin < spins) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+
+                    // Calcular resultado según el ángulo del puntero (Arriba = 3*PI/2)
+                    let normalizedAngle = (wheelAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                    let pointerAngle = (1.5 * Math.PI - normalizedAngle + 2 * Math.PI) % (2 * Math.PI);
+                    let index = Math.floor(pointerAngle / ((2 * Math.PI) / wheelSegments.length)) % wheelSegments.length;
+                    
+                    let prize = wheelSegments[index];
+
+                    if (prize.val === 'clicks_500') {
+                        clicks += 500;
+                        showToast(`🎁 ¡Premio: +500 Clics!`);
+                    } else if (prize.val === 'lose_half') {
+                        clicks = Math.floor(clicks / 2);
+                        showToast(`💀 ¡CASTIGO: Perdiste el 50% de tus clics!`);
+                        triggerScreenShake();
+                    } else if (prize.val === 'gems_2') {
+                        gems += 2;
+                        showToast(`💎 ¡Premio: +2 Gemas!`);
+                    } else if (prize.val === 'lose_fever') {
+                        feverVal = 0; isFever = false;
+                        showToast(`❄️ ¡CASTIGO: Perdiste tu Fuego!`);
+                    } else if (prize.val === 'full_fever') {
+                        feverVal = 100; isFever = true;
+                        showToast(`🔥 ¡Premio: MODO FUEGO MAXIMO!`);
+                    } else if (prize.val === 'lose_200') {
+                        clicks = Math.max(0, clicks - 200);
+                        showToast(`💸 ¡CASTIGO: Perdiste -200 Clics!`);
+                    }
+
+                    playSound(prize.type === 'prize' ? 1100 : 300, 0.3);
+                    recalculateStats();
+                    updateUI();
+                }
+            }
+            animateSpin();
+        }
+
+        function doRebirth() {
+            let possibleGems = Math.floor(totalClicksEarned / 50000);
+            if (possibleGems > 0) {
+                gems += possibleGems;
+                clicks = 0;
+                totalClicksEarned = 0;
+                upgrades.forEach(u => { u.lvl = 0; u.cost = u.baseCost; });
+                recalculateStats();
+                showToast(`🌌 ¡RENACISTE! +${possibleGems} Cristales Conseguidos`);
+                playSound(1200, 0.4);
+                triggerScreenShake();
+                updateUI();
+            } else {
+                alert("Necesitas acumular al menos 50,000 Clics Totales para Renacer.");
+            }
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'achievement-toast';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2800);
+        }
+
+        function spawnGoldenItem() {
+            const container = document.getElementById('fidgetContent');
+            if (!container || container.classList.contains('hidden')) return;
+
+            const golden = document.createElement('div');
+            golden.className = 'golden-item';
+            golden.innerText = Math.random() < 0.5 ? '⚡' : '🎁';
+            golden.style.left = `${Math.random() * 80 + 10}%`;
+            golden.style.top = `${Math.random() * 50 + 20}%`;
+
+            golden.onclick = (e) => {
+                e.stopPropagation();
+                let bonus = Math.max(100, clickPower * 30);
+                clicks += bonus;
+                totalClicksEarned += bonus;
+                createFloatingText(`+${formatNum(bonus)} BONO!`, e, true);
+                playSound(1200, 0.2);
+                golden.remove();
+                updateUI();
+            };
+
+            container.appendChild(golden);
+            setTimeout(() => golden.remove(), 5000);
+        }
+
+        setInterval(spawnGoldenItem, 14000);
+
+        function formatNum(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return Math.floor(num);
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').innerText = formatNum(clicks);
+            document.getElementById('cpcDisplay').innerText = formatNum(clickPower * (isFever ? 3 : 1));
+            document.getElementById('cpsDisplay').innerText = formatNum(autoCPS);
+            document.getElementById('gemsDisplay').innerText = gems;
+
+            document.getElementById('feverBar').style.width = `${feverVal}%`;
+
+            if (comboStreak > 2) {
+                document.getElementById('comboDisplay').innerText = `🔥 COMBO x${comboStreak}!`;
+            } else {
+                document.getElementById('comboDisplay').innerText = '';
+            }
+
+            let possibleGems = Math.floor(totalClicksEarned / 50000);
+            document.getElementById('rebirthGainText').innerText = `Ganarás: +${possibleGems} Cristales 💎`;
+
+            upgrades.forEach((upg) => {
+                const btn = document.getElementById(`upg-btn-${upg.id}`);
+                const costEl = document.getElementById(`upg-cost-${upg.id}`);
+                const lvlEl = document.getElementById(`upg-lvl-${upg.id}`);
+
+                let neededCost = upg.cost;
+                if (buyMode === 10) neededCost = getCostForKLevels(upg, 10);
+                else if (buyMode === 100) neededCost = getCostForKLevels(upg, 100);
+                else if (buyMode === 'MAX') neededCost = getMaxAffordableLevels(upg).cost;
+
+                if (btn) btn.disabled = clicks < neededCost;
+                if (costEl) costEl.innerText = `${formatNum(neededCost)} Clics`;
+                if (lvlEl) lvlEl.innerText = `Niv. ${upg.lvl}`;
+            });
+        }
+
+        renderUpgrades();
+
+        setInterval(() => {
+            if (autoCPS > 0) {
+                let earned = (autoCPS / 10) * (isFever ? 3 : 1);
+                clicks += earned;
+                totalClicksEarned += earned;
+            }
+
+            if (isFever) {
+                feverVal -= 1.5;
+                if (feverVal <= 0) {
+                    isFever = false;
+                    feverVal = 0;
+                }
+            } else if (feverVal > 0) {
+                feverVal = Math.max(0, feverVal - 0.4);
+            }
+
+            updateUI();
+        }, 100);
+
+        function toggleFidget() {
+            const content = document.getElementById('fidgetContent');
+            const icon = document.getElementById('fidgetToggleIcon');
+            content.classList.toggle('hidden');
+            icon.innerText = content.classList.contains('hidden') ? '▲' : '▼';
+        }
+    </script>
+</body>
+</html>
